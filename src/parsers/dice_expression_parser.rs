@@ -31,8 +31,7 @@ impl DiceExpressionParser for DiceExpressionParserImpl {
                             &"8" => Die::D8,
                             &"10" => Die::D10,
                             &"12" => Die::D12,
-                            &"20" => Die::D20,
-                            _ => Die::RAW,
+                            _ => Die::D20,
                         },
                         u32::from_str_radix(parts.get(0).unwrap_or(&"0"), 10).unwrap_or(0),
                     );
