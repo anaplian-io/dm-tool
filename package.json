@@ -3,16 +3,18 @@
   "version": "0.1.0",
   "description": "Assorted quality of life tools for dungeon masters",
   "scripts": {
-    "build:server": "cargo build",
-    "build:client": "npm run lint",
-    "test:server": "cargo test",
-    "build": "npm run build:server && npm run build:client",
-    "test": "npm run test:server",
+    "build:rs": "cargo build",
+    "build:ts": "npm run lint && lerna run build",
+    "test:rs": "cargo test",
+    "test:ts": "lerna run test",
+    "build": "npm run build:rs && npm run build:ts",
+    "test": "npm run test:rs && npm run test:ts",
     "lint": "eslint . && prettier --check .",
     "format": "eslint . --fix && prettier --write .",
     "start": "cargo run",
     "prepare": "husky"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/anaplian-io/dm-tool.git"
@@ -26,18 +28,25 @@
     "url": "https://github.com/anaplian-io/dm-tool/issues"
   },
   "homepage": "https://github.com/anaplian-io/dm-tool#readme",
+  "workspaces": [
+    "workspaces/*"
+  ],
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
     "eslint": "^8.57.1",
-    "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "^5.4.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "globals": "^16.1.0",
     "husky": "^9.1.7",
-    "prettier": "^3.5.3"
+    "jest": "^29.7.0",
+    "lerna": "^8.2.2",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.3.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1"
   }
 }

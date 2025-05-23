@@ -1,0 +1,25 @@
+{
+  "name": "monster-tool",
+  "version": "0.1.0",
+  "description": "Pulls and transforms monster data for import into @anaplian/dm-tool",
+  "homepage": "https://github.com/anaplian-io/dm-tool#readme",
+  "bugs": {
+    "url": "https://github.com/anaplian-io/dm-tool/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anaplian-io/dm-tool.git"
+  },
+  "license": "MIT",
+  "author": "Ethan Fortner",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "ts-auto-guard && tsc",
+    "start": "node build/index.js",
+    "test": "echo"
+  },
+  "devDependencies": {
+    "ts-auto-guard": "^5.0.1"
+  }
+}
