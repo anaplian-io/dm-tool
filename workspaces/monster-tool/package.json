@@ -12,14 +12,17 @@
   },
   "license": "MIT",
   "author": "Ethan Fortner",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "ts-auto-guard && tsc",
-    "start": "node build/index.js",
+    "bundle": "tsc --noEmit && esbuild src/index.ts --outfile=dist/index.js --platform=node --bundle --target=node22 --format=esm",
+    "build": "ts-auto-guard && npm run bundle",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist",
     "test": "echo"
   },
   "devDependencies": {
+    "esbuild": "^0.25.4",
     "ts-auto-guard": "^5.0.1"
   }
 }

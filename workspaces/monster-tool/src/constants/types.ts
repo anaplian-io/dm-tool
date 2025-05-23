@@ -39,12 +39,16 @@ export interface TransformedMonster {
   readonly size: string;
   readonly creatureType: string;
   readonly alignment: string;
+  readonly languages: string[];
   readonly maxHitPoints: number;
   readonly hitDice: string;
   readonly speed: {
     readonly walk: number;
     readonly fly: number;
     readonly swim: number;
+    readonly burrow: number;
+    readonly climb: number;
+    readonly hover: boolean;
   };
   readonly modifiers: {
     readonly str: number;
@@ -54,4 +58,13 @@ export interface TransformedMonster {
     readonly wis: number;
     readonly cha: number;
   };
+  readonly stats: {
+    readonly str: number;
+    readonly dex: number;
+    readonly con: number;
+    readonly int: number;
+    readonly wis: number;
+    readonly cha: number;
+  };
+  readonly imageUrl: string;
 }
