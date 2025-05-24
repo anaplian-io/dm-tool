@@ -97,8 +97,8 @@ export interface TransformedMonster {
   readonly traits: string[];
   readonly actions?: {
     readonly raw: string;
-    readonly sanitized: string;
     readonly multiAttack: MultiAttack[];
+    readonly attackRolls: AttackRoll[];
   };
   readonly legendaryActions?: {
     readonly raw: string;
@@ -113,4 +113,16 @@ export interface TransformedMonster {
 export interface MultiAttack {
   readonly name: string;
   readonly count: number;
+}
+
+/** @see {isAttackRoll} ts-auto-guard:type-guard */
+export interface AttackRoll {
+  readonly name: string;
+  readonly attackType: string;
+  readonly reach: number;
+  readonly hit: number;
+  readonly damage: {
+    readonly roll: string;
+    readonly damageType: string;
+  }[];
 }

@@ -1,10 +1,11 @@
 import {
+  AttackRoll,
   MultiAttack,
   RawMonster,
   TransformedMonster,
 } from '../constants/types';
 import { transformOllamaToArray } from '../utilities/transform-ollama-to-array';
-import { isMultiAttack } from '../constants/types.guard';
+import { isAttackRoll, isMultiAttack } from '../constants/types.guard';
 
 export const transformActions = async (
   monster: RawMonster,
@@ -15,14 +16,14 @@ export const transformActions = async (
   }
   return {
     raw: rawActions,
-    sanitized: rawActions.replace(/<[^>]*>/g, ''),
     multiAttack: await getMultiAttack(rawActions),
+    attackRolls: await getAttackRolls(rawActions),
   };
 };
 
-const getMultiAttack = (rawActions: string): Promise<MultiAttack[]> => {
+const getMultiAttack = async (rawActions: string): Promise<MultiAttack[]> => {
   if (!rawActions.toLowerCase().match('multiattack')) {
-    return Promise.resolve([]);
+    return [];
   }
   return transformOllamaToArray({
     rawText: rawActions,
@@ -79,3 +80,122 @@ const getMultiAttack = (rawActions: string): Promise<MultiAttack[]> => {
     return [];
   });
 };
+
+const getAttackRolls = (rawActions: string): Promise<AttackRoll[]> =>
+  transformOllamaToArray({
+    rawText: rawActions,
+    typeGuard: isAttackRoll,
+    examples: [
+      {
+        input:
+          "<p><em><strong>Multiattack.</strong></em> The tyrannosaurus makes two attacks: one with its bite and one with its tail. It can't make both attacks against the same target. </p><p><em><strong>Bite.</strong></em> <em>Melee Weapon Attack:</em> +10 to hit, reach 10 ft., one target. <em>Hit:</em> 33 (4d12 + 7) piercing damage. If the target is a Medium or smaller creature, it is grappled (escape DC 17). Until this grapple ends, the target is restrained, and the tyrannosaurus can't bite another target. </p><p><em><strong>Tail.</strong></em> <em>Melee Weapon Attack:</em> +10 to hit, reach 10 ft., one target. <em>Hit:</em> 20 (3d8 + 7) bludgeoning damage.</p>",
+        parsed: [
+          {
+            name: 'bite',
+            attackType: 'meleeWeapon',
+            reach: 10,
+            hit: 10,
+            damage: [
+              {
+                roll: '4d12+7',
+                damageType: 'piercing',
+              },
+            ],
+          },
+          {
+            name: 'tail',
+            attackType: 'meleeWeapon',
+            reach: 10,
+            hit: 10,
+            damage: [
+              {
+                roll: '3d8+7',
+                damageType: 'bludgeoning',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        input:
+          "<p><em><strong>Multiattack. (Vampire Form Only).</strong></em> The vampire makes two attacks, only one of which can be a bite attack. </p><p><em><strong>Unarmed Strike (Vampire Form Only).</strong></em> <em>Melee Weapon Attack:</em> +9 to hit, reach 5 ft., one creature. <em>Hit:</em> 8 (1d8 + 4) bludgeoning damage. Instead of dealing damage, the vampire can grapple the target (escape DC 18). </p><p><em><strong>Bite. (Bat or Vampire Form Only).</strong></em> <em>Melee Weapon Attack:</em> +9 to hit, reach 5 ft., one willing creature, or a creature that is grappled by the vampire, incapacitated, or restrained. <em>Hit:</em> 7 (1d6 + 4) piercing damage plus 10 (3d6) necrotic damage. The target's hit point maximum is reduced by an amount equal to the necrotic damage taken, and the vampire regains hit points equal to that amount. The reduction lasts until the target finishes a long rest. The target dies if this effect reduces its hit point maximum to 0. A humanoid slain in this way and then buried in the ground rises the following night as a vampire spawn under the vampire's control. </p><p><em><strong>Charm.</strong></em> The vampire targets one humanoid it can see within 30 feet of it. If the target can see the vampire, the target must succeed on a DC 17 Wisdom saving throw against this magic or be charmed by the vampire. The charmed target regards the vampire as a trusted friend to be heeded and protected. Although the target isn't under the vampire's control, it takes the vampire's requests or actions in the most favorable way it can, and it is a willing target for the vampire's bite attack.</p><p>Each time the vampire or the vampire's companions do anything harmful to the target, it can repeat the saving throw, ending the effect on itself on a success. Otherwise, the effect lasts 24 hours or until the vampire is destroyed, is on a different plane of existence than the target, or takes a bonus action to end the effect. </p><p><em><strong>Children of the Night (1/Day).</strong></em> The vampire magically calls 2d4 swarms of bats or rats (swarm of bats, swarm of rats), provided that the sun isn't up. While outdoors, the vampire can call 3d6 wolves (wolf) instead. The called creatures arrive in 1d4 rounds, acting as allies of the vampire and obeying its spoken commands. The beasts remain for 1 hour, until the vampire dies, or until the vampire dismisses them as a bonus action.</p>",
+        parsed: [
+          {
+            name: 'unarmedStrike',
+            attackType: 'meleeWeapon',
+            reach: 5,
+            hit: 9,
+            damage: [
+              {
+                roll: '1d8+4',
+                damageType: 'bludgeoning',
+              },
+            ],
+          },
+          {
+            name: 'bite',
+            attackType: 'meleeWeapon',
+            reach: 5,
+            hit: 9,
+            damage: [
+              {
+                roll: '1d6+4',
+                damageType: 'piercing',
+              },
+              {
+                roll: '3d6',
+                damageType: 'necrotic',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        input:
+          '<p><em><strong>Multiattack.</strong></em> The veteran makes two longsword attacks. If it has a shortsword drawn, it can also make a shortsword attack. </p><p><em><strong>Longsword.</strong></em> <em>Melee Weapon Attack:</em> +5 to hit, reach 5 ft., one target. <em>Hit:</em> 7 (1d8 + 3) slashing damage, or 8 (1d10 + 3) slashing damage if used with two hands. </p><p><em><strong>Shortsword.</strong></em> <em>Melee Weapon Attack:</em> +5 to hit, reach 5 ft., one target. <em>Hit:</em> 6 (1d6 + 3) piercing damage. </p><p><em><strong>Heavy Crossbow.</strong></em> <em>Ranged Weapon Attack:</em> +3 to hit, range 100/400 ft., one target. <em>Hit:</em> 6 (1d10 + 1) piercing damage.</p>',
+        parsed: [
+          {
+            name: 'longsword',
+            attackType: 'meleeWeapon',
+            reach: 5,
+            hit: 5,
+            damage: [
+              {
+                damageType: 'slashing',
+                roll: '1d8+3',
+              },
+            ],
+          },
+          {
+            name: 'shortsword',
+            attackType: 'meleeWeapon',
+            reach: 5,
+            hit: 5,
+            damage: [
+              {
+                damageType: 'piercing',
+                roll: '1d6+3',
+              },
+            ],
+          },
+          {
+            name: 'heavyCrossbow',
+            attackType: 'meleeWeapon',
+            reach: 100,
+            hit: 3,
+            damage: [
+              {
+                damageType: 'piercing',
+                roll: '1d10+1',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }).then((result) => {
+    if (result.type === 'some') {
+      return result.some;
+    }
+    return [];
+  });
