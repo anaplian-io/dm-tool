@@ -9,6 +9,9 @@ import { transformCreatureType } from './transform-creature-type';
 import { transformAlignment } from './transform-alignment';
 import { transformStats } from './transform-stats';
 import { transformLanguages } from './transform-languages';
+import { transformSavingThrows } from './transform-saving-throws';
+import { transformSkills } from './transform-skills';
+import { transformTraits } from './transform-traits';
 
 export const transformMonster = (monster: RawMonster): TransformedMonster => ({
   name: monster.name,
@@ -22,5 +25,8 @@ export const transformMonster = (monster: RawMonster): TransformedMonster => ({
   speed: transformSpeed(monster),
   modifiers: transformModifiers(monster),
   stats: transformStats(monster),
+  savingThrows: transformSavingThrows(monster),
+  skills: transformSkills(monster),
+  traits: transformTraits(monster),
   imageUrl: monster.img_url,
 });

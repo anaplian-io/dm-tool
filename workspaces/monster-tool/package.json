@@ -19,7 +19,7 @@
     "build": "ts-auto-guard && npm run bundle",
     "start": "node dist/index.js",
     "clean": "rm -rf dist",
-    "test": "echo"
+    "test": "jest"
   },
   "devDependencies": {
     "esbuild": "^0.25.4",

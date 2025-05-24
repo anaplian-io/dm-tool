@@ -66,5 +66,34 @@ export interface TransformedMonster {
     readonly wis: number;
     readonly cha: number;
   };
+  readonly savingThrows: {
+    readonly str: number;
+    readonly dex: number;
+    readonly con: number;
+    readonly int: number;
+    readonly wis: number;
+    readonly cha: number;
+  };
+  readonly skills: {
+    readonly acrobatics: number;
+    readonly animalHandling: number;
+    readonly arcana: number;
+    readonly athletics: number;
+    readonly deception: number;
+    readonly history: number;
+    readonly insight: number;
+    readonly intimidation: number;
+    readonly investigation: number;
+    readonly medicine: number;
+    readonly nature: number;
+    readonly perception: number;
+    readonly performance: number;
+    readonly persuasion: number;
+    readonly religion: number;
+    readonly sleightOfHand: number;
+    readonly stealth: number;
+    readonly survival: number;
+  };
+  readonly traits: string[];
   readonly imageUrl: string;
 }
