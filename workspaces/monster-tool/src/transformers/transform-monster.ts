@@ -12,8 +12,13 @@ import { transformLanguages } from './transform-languages';
 import { transformSavingThrows } from './transform-saving-throws';
 import { transformSkills } from './transform-skills';
 import { transformTraits } from './transform-traits';
+import { transformActions } from './transform-actions';
+import { transformLegendaryActions } from './transform-legendary-actions';
+import { transformReactions } from './transform-reactions';
 
-export const transformMonster = (monster: RawMonster): TransformedMonster => ({
+export const transformMonster = async (
+  monster: RawMonster,
+): Promise<TransformedMonster> => ({
   name: monster.name,
   ac: transformAc(monster),
   size: transformSize(monster),
@@ -28,5 +33,8 @@ export const transformMonster = (monster: RawMonster): TransformedMonster => ({
   savingThrows: transformSavingThrows(monster),
   skills: transformSkills(monster),
   traits: transformTraits(monster),
+  actions: await transformActions(monster),
+  legendaryActions: transformLegendaryActions(monster),
+  reactions: transformReactions(monster),
   imageUrl: monster.img_url,
 });

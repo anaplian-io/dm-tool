@@ -95,5 +95,22 @@ export interface TransformedMonster {
     readonly survival: number;
   };
   readonly traits: string[];
+  readonly actions?: {
+    readonly raw: string;
+    readonly sanitized: string;
+    readonly multiAttack: MultiAttack[];
+  };
+  readonly legendaryActions?: {
+    readonly raw: string;
+  };
+  readonly reactions?: {
+    readonly raw: string;
+  };
   readonly imageUrl: string;
+}
+
+/** @see {isMultiAttack} ts-auto-guard:type-guard */
+export interface MultiAttack {
+  readonly name: string;
+  readonly count: number;
 }
