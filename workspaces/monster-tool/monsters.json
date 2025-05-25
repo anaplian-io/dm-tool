@@ -7179,14 +7179,6 @@
               "damageType": "bludgeoning"
             }
           ]
-        },
-        {
-          "name": "tentacles",
-          "attackType": "ability",
-          "reach": 0,
-          "hit": 0,
-          "damage": [],
-          "effect": "poisoned"
         }
       ]
     },
@@ -8166,8 +8158,7 @@
               "roll": "1d10+2",
               "damageType": "piercing"
             }
-          ],
-          "additionalEffect": "grapple(escapeDC12),restrained"
+          ]
         }
       ]
     },
@@ -13008,8 +12999,7 @@
               "roll": "1d6+1",
               "damageType": "bludgeoning"
             }
-          ],
-          "additionalEffect": "grappled(escapeDC11)"
+          ]
         }
       ]
     },
@@ -14529,14 +14519,6 @@
               "roll": "1d8+3",
               "damageType": "piercing"
             }
-          ],
-          "additionalEffects": [
-            {
-              "type": "poison",
-              "save": "Constitution",
-              "dc": 11,
-              "effect": "taking9(2d8)poisondamageonafailedsave"
-            }
           ]
         },
         {
@@ -14544,13 +14526,7 @@
           "attackType": "rangedWeapon",
           "reach": 30,
           "hit": 5,
-          "damage": [],
-          "additionalEffects": [
-            {
-              "type": "restrained",
-              "effect": "Thetargetisrestrainedbywebbing."
-            }
-          ]
+          "damage": []
         }
       ]
     },
@@ -17729,16 +17705,6 @@
             {
               "damageType": "piercing",
               "roll": "1"
-            }
-          ],
-          "additionalEffects": [
-            {
-              "type": "poisoned",
-              "duration": "1minute",
-              "save": {
-                "type": "Constitution",
-                "DC": 10
-              }
             }
           ]
         }
@@ -21435,13 +21401,6 @@
               "damageType": "necrotic"
             }
           ]
-        },
-        {
-          "name": "dreadfulGlare",
-          "attackType": "magic",
-          "reach": 60,
-          "hit": 0,
-          "damage": []
         }
       ]
     },
@@ -21548,13 +21507,6 @@
               "damageType": "necrotic"
             }
           ]
-        },
-        {
-          "name": "dreadfulGlare",
-          "attackType": "magic",
-          "reach": 60,
-          "hit": 0,
-          "damage": []
         }
       ]
     },
@@ -23370,12 +23322,6 @@
             {
               "roll": "4d6+8",
               "damageType": "piercing"
-            }
-          ],
-          "additionalEffects": [
-            {
-              "type": "poison",
-              "description": "ThetargetmustsucceedonaDC21Constitutionsavingthroworbecomepoisoned.Whilepoisonedinthisway,thetargetcan'tregainhitpoints,andittakes21(6d6)poisondamageatthestartofeachofitsturns."
             }
           ]
         },
@@ -25433,8 +25379,7 @@
           "attackType": "meleeWeapon",
           "reach": 50,
           "hit": 7,
-          "damage": [],
-          "effect": "grappled"
+          "damage": []
         }
       ]
     },
@@ -26172,17 +26117,6 @@
             {
               "damageType": "piercing",
               "roll": "1"
-            }
-          ],
-          "additionalEffects": [
-            {
-              "type": "savingThrow",
-              "dc": 9,
-              "effect": "poison",
-              "damage": {
-                "roll": "1d8",
-                "type": "poison"
-              }
             }
           ]
         }
