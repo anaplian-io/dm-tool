@@ -15,6 +15,7 @@ import { transformTraits } from './transform-traits';
 import { transformActions } from './transform-actions';
 import { transformLegendaryActions } from './transform-legendary-actions';
 import { transformReactions } from './transform-reactions';
+import { transformChallenge } from './transform-challenge';
 
 export const transformMonster = async (
   monster: RawMonster,
@@ -36,5 +37,6 @@ export const transformMonster = async (
   actions: await transformActions(monster),
   legendaryActions: transformLegendaryActions(monster),
   reactions: transformReactions(monster),
+  challenge: transformChallenge(monster),
   imageUrl: monster.img_url,
 });

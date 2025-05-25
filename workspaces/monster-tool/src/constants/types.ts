@@ -99,8 +99,12 @@ export interface TransformedMonster {
     readonly list: string[];
     readonly attackRolls: AttackRoll[];
   };
-  readonly legendaryActions?: string[];
-  readonly reactions?: string[];
+  readonly legendaryActions: string[];
+  readonly reactions: string[];
+  readonly challenge: {
+    readonly rating: string;
+    readonly xp: number;
+  };
   readonly imageUrl: string;
 }
 

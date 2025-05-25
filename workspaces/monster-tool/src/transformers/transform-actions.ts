@@ -12,11 +12,14 @@ export const transformActions = async (
   }
   return {
     list: splitHtml(rawActions),
-    attackRolls: await getAttackRolls(rawActions),
+    attackRolls: await getAttackRolls(rawActions, 2),
   };
 };
 
-const getAttackRolls = (rawActions: string): Promise<AttackRoll[]> =>
+const getAttackRolls = (
+  rawActions: string,
+  retries: number,
+): Promise<AttackRoll[]> =>
   transformOllamaToArray({
     rawText: rawActions,
     typeGuard: isAttackRoll,
@@ -186,5 +189,10 @@ const getAttackRolls = (rawActions: string): Promise<AttackRoll[]> =>
     if (result.type === 'some') {
       return result.some;
     }
+    if (retries > 0) {
+      console.warn(`Retrying. ${retries} attempts remaining.`);
+      return getAttackRolls(rawActions, retries - 1);
+    }
+    console.warn('Exhausted retries. Giving up.');
     return [];
   });

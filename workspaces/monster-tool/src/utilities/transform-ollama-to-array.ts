@@ -40,7 +40,10 @@ ${JSON.stringify(example.parsed)}
     .join('\n');
   const prompt = `
 You are a natural language processing algorithm. You accept a piece of raw text and parse it into a well-formed JSON array consistent with the shape given in the examples (your output must always be an array).
-Your output shape must exactly match the shape specified in the examples.
+- Your output shape must exactly match the shape specified in the examples.
+- Do not create any JSON fields not described in the examples.
+- You are only parsing weapon attack types and rolls; ignore spell save DCs and other effects.
+- Do not include action descriptions.
 
 ${formattedExamples}
 
@@ -51,7 +54,7 @@ ${rawText}
   `;
   const modelResponse = await ollama.chat({
     stream: false,
-    model: 'gemma3:latest',
+    model: 'llama4:latest',
     messages: [
       {
         role: 'user',
