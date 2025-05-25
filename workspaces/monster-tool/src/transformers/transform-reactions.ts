@@ -1,6 +1,7 @@
 import { RawMonster, TransformedMonster } from '../constants/types';
+import { splitHtml } from '../utilities/split-html';
 
 export const transformReactions = (
   monster: RawMonster,
 ): TransformedMonster['reactions'] =>
-  monster.Reactions ? { raw: monster.Reactions } : undefined;
+  monster.Reactions ? splitHtml(monster.Reactions) : [];

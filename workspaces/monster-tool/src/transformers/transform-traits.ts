@@ -1,8 +1,7 @@
 import { RawMonster, TransformedMonster } from '../constants/types';
+import { splitHtml } from '../utilities/split-html';
 
 export const transformTraits = (
   monster: RawMonster,
 ): TransformedMonster['traits'] =>
-  monster.Traits?.split('</p>')
-    .map((rawTrait) => rawTrait.replaceAll(/<[^>]*>/g, '').trim())
-    .filter((trait) => '' !== trait) ?? [];
+  monster.Traits ? splitHtml(monster.Traits) : [];
