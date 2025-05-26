@@ -1,14 +1,15 @@
-use crate::state::{Die, HandlerDependencies};
+use crate::parsers::DiceExpressionParser;
+use crate::utilities::{DiceRoller, Roll};
 use axum::Json;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use serde::Serialize;
 use std::sync::Arc;
 
-#[derive(Debug, Serialize, PartialEq)]
-struct Roll {
-    die: Die,
-    value: i32,
+#[derive(Clone)]
+pub struct RollDiceHandlerDependencies {
+    pub(crate) dice_expression_parser: Arc<dyn DiceExpressionParser + Send + Sync>,
+    pub(crate) dice_roller: Arc<dyn DiceRoller + Send + Sync>,
 }
 
 #[derive(Debug, Serialize, PartialEq)]
@@ -20,7 +21,7 @@ pub struct RollDiceResponse {
 
 pub async fn roll_dice(
     Path(expression): Path<String>,
-    State(dependencies): State<Arc<HandlerDependencies>>,
+    State(dependencies): State<RollDiceHandlerDependencies>,
 ) -> Result<Json<RollDiceResponse>, (StatusCode, String)> {
     let parsed_dice_expression_result = match dependencies.dice_expression_parser.parse(&expression)
     {
@@ -29,26 +30,9 @@ pub async fn roll_dice(
             return Err((StatusCode::BAD_REQUEST, error.to_string()));
         }
     };
-    let rolls = parsed_dice_expression_result
-        .iter()
-        .flat_map(|(die, n)| match die {
-            Die::Raw => vec![Roll {
-                die: Die::Raw,
-                value: *n,
-            }],
-            die => (0..*n)
-                .map(|_| Roll {
-                    die: die.clone(),
-                    value: dependencies.die_roller.roll(die),
-                })
-                .collect::<Vec<_>>(),
-        })
-        .collect::<Vec<Roll>>();
-    let total = rolls
-        .iter()
-        .map(|roll| roll.value)
-        .reduce(|a, b| a + b)
-        .unwrap_or(0);
+    let (rolls, total) = dependencies
+        .dice_roller
+        .roll(&parsed_dice_expression_result);
     Ok(Json(RollDiceResponse {
         expression,
         total,
@@ -60,9 +44,11 @@ pub async fn roll_dice(
 mod tests {
     use super::*;
     use crate::parsers::DiceExpressionParser;
-    use crate::state::Die;
-    use crate::state::Die::{D6, Raw};
+    use crate::utilities::Die;
+    use crate::utilities::Die::{D6, Raw};
     use crate::utilities::DieRoller;
+    use crate::utilities::dice_roller::DiceRollerImpl;
+    use std::sync::Arc;
 
     #[tokio::test]
     async fn test_roll_dice_error() {
@@ -79,10 +65,10 @@ mod tests {
             }
         }
 
-        let state: Arc<HandlerDependencies> = Arc::new(HandlerDependencies {
-            die_roller: Box::new(MockDieRoller {}),
-            dice_expression_parser: Box::new(MockDiceExpressionParser {}),
-        });
+        let state = RollDiceHandlerDependencies {
+            dice_roller: Arc::new(DiceRollerImpl::new(Arc::new(MockDieRoller {}))),
+            dice_expression_parser: Arc::new(MockDiceExpressionParser {}),
+        };
 
         let result = roll_dice(Path("fake-expression".to_string()), State(state)).await;
 
@@ -104,10 +90,10 @@ mod tests {
             }
         }
 
-        let state: Arc<HandlerDependencies> = Arc::new(HandlerDependencies {
-            die_roller: Box::new(MockDieRoller {}),
-            dice_expression_parser: Box::new(MockDiceExpressionParser {}),
-        });
+        let state = RollDiceHandlerDependencies {
+            dice_roller: Arc::new(DiceRollerImpl::new(Arc::new(MockDieRoller {}))),
+            dice_expression_parser: Arc::new(MockDiceExpressionParser {}),
+        };
 
         let result = roll_dice(Path("fake-expression".to_string()), State(state))
             .await

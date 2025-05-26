@@ -1,4 +1,4 @@
-use crate::state::Die;
+use crate::utilities::Die;
 use crate::utilities::DieRoller;
 use rand::Rng;
 use rand::rngs::ThreadRng;

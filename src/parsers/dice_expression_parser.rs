@@ -1,5 +1,5 @@
 use crate::parsers::DiceExpressionParser;
-use crate::state::Die;
+use crate::utilities::Die;
 use regex::Regex;
 
 pub struct DiceExpressionParserImpl {
@@ -50,7 +50,7 @@ impl DiceExpressionParser for DiceExpressionParserImpl {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::state::Die;
+    use crate::utilities::Die;
 
     #[test]
     fn test_dice_expression_parser_ok() {
