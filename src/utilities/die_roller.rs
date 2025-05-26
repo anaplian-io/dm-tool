@@ -1,7 +1,7 @@
 use crate::state::Die;
 use crate::utilities::DieRoller;
-use rand::rngs::ThreadRng;
 use rand::Rng;
+use rand::rngs::ThreadRng;
 use std::cell::RefCell;
 use std::thread::LocalKey;
 
@@ -24,8 +24,8 @@ impl DieRollerImpl {
 }
 
 impl DieRoller for DieRollerImpl {
-    fn roll(self: &Self, die: &Die) -> u32 {
-        let get_local_inclusive_random = |n: u32| {
+    fn roll(&self, die: &Die) -> i32 {
+        let get_local_inclusive_random = |n| {
             self.random
                 .with(|cell| cell.borrow_mut().random_range(1..=n))
         };
@@ -36,7 +36,7 @@ impl DieRoller for DieRollerImpl {
             Die::D10 => get_local_inclusive_random(10),
             Die::D12 => get_local_inclusive_random(12),
             Die::D20 => get_local_inclusive_random(20),
-            Die::RAW => 0,
+            Die::Raw => 0,
         }
     }
 }
@@ -91,6 +91,6 @@ mod tests {
     fn test_roll_raw() {
         let roller = DieRollerImpl::default();
 
-        assert_eq!(roller.roll(&Die::RAW), 0)
+        assert_eq!(roller.roll(&Die::Raw), 0)
     }
 }

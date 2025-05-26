@@ -1,7 +1,7 @@
 use crate::state::{Die, HandlerDependencies};
+use axum::Json;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
-use axum::Json;
 use serde::Serialize;
 use std::sync::Arc;
 
@@ -32,15 +32,14 @@ pub async fn roll_dice(
     let rolls = parsed_dice_expression_result
         .iter()
         .flat_map(|(die, n)| match die {
-            Die::RAW => vec![Roll {
-                die: Die::RAW,
-                value: *n as i32,
+            Die::Raw => vec![Roll {
+                die: Die::Raw,
+                value: *n,
             }],
             die => (0..*n)
-                .into_iter()
                 .map(|_| Roll {
                     die: die.clone(),
-                    value: dependencies.die_roller.roll(die) as i32,
+                    value: dependencies.die_roller.roll(die),
                 })
                 .collect::<Vec<_>>(),
         })
@@ -62,20 +61,20 @@ mod tests {
     use super::*;
     use crate::parsers::DiceExpressionParser;
     use crate::state::Die;
-    use crate::state::Die::{D6, RAW};
+    use crate::state::Die::{D6, Raw};
     use crate::utilities::DieRoller;
 
     #[tokio::test]
     async fn test_roll_dice_error() {
         struct MockDiceExpressionParser {}
         impl DiceExpressionParser for MockDiceExpressionParser {
-            fn parse(self: &Self, _: &str) -> Result<Vec<(Die, u32)>, String> {
+            fn parse(&self, _: &str) -> Result<Vec<(Die, i32)>, String> {
                 Err(String::from("Invalid dice expression"))
             }
         }
         struct MockDieRoller {}
         impl DieRoller for MockDieRoller {
-            fn roll(self: &Self, _: &Die) -> u32 {
+            fn roll(&self, _: &Die) -> i32 {
                 panic!("Dice roller should not have been executed")
             }
         }
@@ -94,13 +93,13 @@ mod tests {
     async fn test_roll_dice_success() {
         struct MockDiceExpressionParser {}
         impl DiceExpressionParser for MockDiceExpressionParser {
-            fn parse(self: &Self, _: &str) -> Result<Vec<(Die, u32)>, String> {
-                Ok(vec![(D6, 2), (RAW, 5)])
+            fn parse(&self, _: &str) -> Result<Vec<(Die, i32)>, String> {
+                Ok(vec![(D6, 2), (Raw, 5)])
             }
         }
         struct MockDieRoller {}
         impl DieRoller for MockDieRoller {
-            fn roll(self: &Self, _: &Die) -> u32 {
+            fn roll(&self, _: &Die) -> i32 {
                 3
             }
         }
@@ -122,7 +121,7 @@ mod tests {
                 rolls: vec![
                     Roll { die: D6, value: 3 },
                     Roll { die: D6, value: 3 },
-                    Roll { die: RAW, value: 5 }
+                    Roll { die: Raw, value: 5 }
                 ],
             }
         );

@@ -15,5 +15,5 @@ pub enum Die {
     D10,
     D12,
     D20,
-    RAW,
+    Raw,
 }
