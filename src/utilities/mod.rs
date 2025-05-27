@@ -1,6 +1,7 @@
 pub mod dice_roller;
 pub mod die_roller;
 
+use enum_iterator::Sequence;
 use serde::Serialize;
 
 pub trait DieRoller {
@@ -17,7 +18,7 @@ pub struct Roll {
     pub value: i32,
 }
 
-#[derive(Debug, Serialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, PartialEq, Clone, Sequence)]
 pub enum Die {
     D4,
     D6,

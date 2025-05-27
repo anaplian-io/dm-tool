@@ -2,6 +2,7 @@ mod handlers;
 mod parsers;
 mod utilities;
 
+use crate::handlers::list_dice;
 use crate::parsers::DiceExpressionParser;
 use crate::parsers::dice_expression_parser::DiceExpressionParserImpl;
 use crate::utilities::dice_roller::DiceRollerImpl;
@@ -17,13 +18,15 @@ use tokio::net::TcpListener;
 #[tokio::main]
 async fn main() {
     let (dice_expression_parser, dice_roller, _) = build_dependencies();
-    let app = Router::new().route(
-        "/v1/dice/roll/{roll_expression}",
-        get(roll_dice::roll_dice).with_state(RollDiceHandlerDependencies {
-            dice_expression_parser: dice_expression_parser.clone(),
-            dice_roller: dice_roller.clone(),
-        }),
-    );
+    let app = Router::new()
+        .route(
+            "/v1/dice/roll/{roll_expression}",
+            get(roll_dice::roll_dice).with_state(RollDiceHandlerDependencies {
+                dice_expression_parser: dice_expression_parser.clone(),
+                dice_roller: dice_roller.clone(),
+            }),
+        )
+        .route("/v1/dice/list", get(list_dice::list_dice));
     let listener = TcpListener::bind(("0.0.0.0", 8080)).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
