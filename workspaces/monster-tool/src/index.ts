@@ -33,7 +33,7 @@ import pLimit from 'p-limit';
     ),
   );
   fs.writeFileSync(
-    'monsters.json',
+    'utilities.json',
     JSON.stringify(transformedMonsters, null, 2),
   );
 })();

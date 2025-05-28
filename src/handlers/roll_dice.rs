@@ -1,5 +1,5 @@
-use crate::parsers::DiceExpressionParser;
-use crate::utilities::{DiceRoller, Roll};
+use crate::dice::DiceExpressionParser;
+use crate::dice::{DiceRoller, Roll};
 use axum::Json;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
@@ -43,11 +43,11 @@ pub async fn roll_dice(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parsers::DiceExpressionParser;
-    use crate::utilities::Die;
-    use crate::utilities::Die::{D6, Raw};
-    use crate::utilities::DieRoller;
-    use crate::utilities::dice_roller::DiceRollerImpl;
+    use crate::dice::DiceExpressionParser;
+    use crate::dice::Die;
+    use crate::dice::Die::{D6, Raw};
+    use crate::dice::DieRoller;
+    use crate::dice::dice_roller::DiceRollerImpl;
     use std::sync::Arc;
 
     #[tokio::test]

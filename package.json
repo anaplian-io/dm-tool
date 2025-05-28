@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "description": "Assorted quality of life tools for dungeon masters",
   "scripts": {
+    "copy": "mkdir user_data ; cp workspaces/monster-tool/monsters.json ./user_data/",
     "clean:ts": "lerna run clean && rm -rf node_modules",
     "clean:rs": "cargo clean",
-    "build:rs": "cargo build",
-    "build:ts": "npm install && npm run lint && lerna run build",
+    "build:rs": "npm run lint:rs && cargo build && npm run copy",
+    "build:ts": "npm install && npm run lint:ts && lerna run build",
     "test:rs": "cargo test",
     "test:ts": "lerna run test",
     "lint:rs": "cargo fmt --all -- --check && cargo clippy --all -- -D warnings",

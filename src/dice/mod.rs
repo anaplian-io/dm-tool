@@ -1,3 +1,4 @@
+pub mod dice_expression_parser;
 pub mod dice_roller;
 pub mod die_roller;
 
@@ -27,4 +28,8 @@ pub enum Die {
     D12,
     D20,
     Raw,
+}
+
+pub trait DiceExpressionParser {
+    fn parse(&self, expression: &str) -> Result<Vec<(Die, i32)>, String>;
 }

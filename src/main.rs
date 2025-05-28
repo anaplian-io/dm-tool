@@ -1,15 +1,14 @@
+mod dice;
 mod handlers;
-mod parsers;
-mod utilities;
 
+use crate::dice::dice_roller::DiceRollerImpl;
+use crate::dice::die_roller::DieRollerImpl;
+use crate::dice::{DiceRoller, DieRoller};
 use crate::handlers::list_dice;
-use crate::parsers::DiceExpressionParser;
-use crate::parsers::dice_expression_parser::DiceExpressionParserImpl;
-use crate::utilities::dice_roller::DiceRollerImpl;
-use crate::utilities::die_roller::DieRollerImpl;
-use crate::utilities::{DiceRoller, DieRoller};
 use axum::Router;
 use axum::routing::get;
+use dice::DiceExpressionParser;
+use dice::dice_expression_parser::DiceExpressionParserImpl;
 use handlers::roll_dice;
 use handlers::roll_dice::RollDiceHandlerDependencies;
 use std::sync::Arc;

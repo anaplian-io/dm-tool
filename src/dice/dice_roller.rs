@@ -1,5 +1,5 @@
-use crate::utilities::Die;
-use crate::utilities::{DiceRoller, DieRoller, Roll};
+use crate::dice::Die;
+use crate::dice::{DiceRoller, DieRoller, Roll};
 use std::sync::Arc;
 
 pub struct DiceRollerImpl {

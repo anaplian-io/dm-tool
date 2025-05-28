@@ -1,5 +1,5 @@
-use crate::utilities::Die;
-use crate::utilities::DieRoller;
+use crate::dice::Die;
+use crate::dice::DieRoller;
 use rand::Rng;
 use rand::rngs::ThreadRng;
 use std::cell::RefCell;
