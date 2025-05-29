@@ -60,11 +60,12 @@ impl Tokenize for Vec<DamageRoll> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::utilities::MONSTERS_JSON_PATH;
     use crate::utilities::load_from_json::load_from_json;
 
     #[test]
     fn tokenize_monster() {
-        let monsters = load_from_json::<Vec<Monster>>("user_data/monsters.json");
+        let monsters = load_from_json::<Vec<Monster>>(MONSTERS_JSON_PATH);
         let monster: &Monster = monsters.first().unwrap();
         let monster_tokens = monster.tokenize();
 

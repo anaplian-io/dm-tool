@@ -15,10 +15,11 @@ where
 mod tests {
     use super::*;
     use crate::monsters::Monster;
+    use crate::utilities::MONSTERS_JSON_PATH;
 
     #[test]
     fn loads_from_json() {
-        let monsters = load_from_json::<Vec<Monster>>("user_data/monsters.json");
+        let monsters = load_from_json::<Vec<Monster>>(MONSTERS_JSON_PATH);
 
         assert_eq!(monsters.first().unwrap().name, "Aboleth");
     }

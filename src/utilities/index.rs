@@ -42,6 +42,7 @@ where
 mod tests {
     use super::*;
     use crate::monsters::{Monster, Tokenize};
+    use crate::utilities::MONSTERS_JSON_PATH;
     use crate::utilities::load_from_json::load_from_json;
 
     #[derive(Clone, Debug, PartialEq)]
@@ -82,7 +83,7 @@ mod tests {
 
     #[test]
     fn test_invert_index() {
-        let monsters = load_from_json::<Vec<Monster>>("user_data/monsters.json");
+        let monsters = load_from_json::<Vec<Monster>>(MONSTERS_JSON_PATH);
         let monster_map = vec_to_map(&monsters, |monster| monster.name.to_lowercase());
         let monster_tokens: HashMap<String, HashSet<String>> = monster_map
             .iter()

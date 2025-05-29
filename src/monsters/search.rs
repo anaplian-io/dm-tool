@@ -40,13 +40,14 @@ impl MonsterSearch {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::utilities::MONSTERS_JSON_PATH;
     use crate::utilities::index::vec_to_map;
     use crate::utilities::load_from_json::load_from_json;
 
     #[test]
     fn loads_from_json() {
         let monster_map = Arc::new(vec_to_map(
-            &load_from_json::<Vec<Monster>>("user_data/monsters.json"),
+            &load_from_json::<Vec<Monster>>(MONSTERS_JSON_PATH),
             |monster| monster.name.clone(),
         ));
         let monster_search = MonsterSearch::from_map(monster_map);

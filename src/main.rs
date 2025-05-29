@@ -10,6 +10,7 @@ use crate::handlers::list_monsters::ListMonstersDependencies;
 use crate::handlers::{list_dice, list_monsters};
 use crate::monsters::Monster;
 use crate::monsters::search::MonsterSearch;
+use crate::utilities::MONSTERS_JSON_PATH;
 use crate::utilities::index::vec_to_map;
 use crate::utilities::load_from_json::load_from_json;
 use axum::Router;
@@ -55,7 +56,7 @@ fn build_dependencies() -> Dependencies {
     let dice_expression_parser = Arc::new(DiceExpressionParserImpl::default());
     let die_roller = Arc::new(DieRollerImpl::default());
     let dice_roller = Arc::new(DiceRollerImpl::new(die_roller.clone()));
-    let monsters = Arc::new(load_from_json::<Vec<Monster>>("user_data/monsters.json"));
+    let monsters = Arc::new(load_from_json::<Vec<Monster>>(MONSTERS_JSON_PATH));
     let monster_search = Arc::new(MonsterSearch::from_map(Arc::new(vec_to_map(
         &monsters,
         |monster| monster.name.clone(),
