@@ -44,7 +44,7 @@ mod tests {
         let state = get_dependencies();
         let result = list_monsters(Query(HashMap::new()), State(state)).await.0;
 
-        assert_eq!(result.get(0).unwrap().name, "Aboleth");
+        assert_eq!(result.first().unwrap().name, "Aboleth");
         assert!(result.len() > 1);
     }
 
