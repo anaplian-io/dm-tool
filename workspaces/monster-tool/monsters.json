@@ -8246,7 +8246,7 @@
       "attackRolls": [
         {
           "name": "dagger",
-          "attackType": "melee",
+          "attackType": "meleeWeapon",
           "reach": 5,
           "hit": 4,
           "damage": [
@@ -8258,8 +8258,8 @@
         },
         {
           "name": "dagger",
-          "attackType": "ranged",
-          "reach": 60,
+          "attackType": "rangedWeapon",
+          "reach": 20,
           "hit": 4,
           "damage": [
             {
@@ -8937,7 +8937,7 @@
       "attackRolls": [
         {
           "name": "mace",
-          "attackType": "melee",
+          "attackType": "meleeWeapon",
           "reach": 5,
           "hit": 8,
           "damage": [
@@ -15296,19 +15296,7 @@
       "attackRolls": [
         {
           "name": "spear",
-          "attackType": "melee",
-          "reach": 5,
-          "hit": 7,
-          "damage": [
-            {
-              "roll": "2d6+4",
-              "damageType": "piercing"
-            }
-          ]
-        },
-        {
-          "name": "spear",
-          "attackType": "ranged",
+          "attackType": "rangedWeapon",
           "reach": 20,
           "hit": 7,
           "damage": [
@@ -15320,7 +15308,7 @@
         },
         {
           "name": "spear",
-          "attackType": "melee",
+          "attackType": "meleeWeapon",
           "reach": 5,
           "hit": 7,
           "damage": [
@@ -15332,7 +15320,7 @@
         },
         {
           "name": "shieldBash",
-          "attackType": "melee",
+          "attackType": "meleeWeapon",
           "reach": 5,
           "hit": 7,
           "damage": [
@@ -29051,7 +29039,7 @@
       "attackRolls": [
         {
           "name": "mace",
-          "attackType": "melee",
+          "attackType": "meleeWeapon",
           "reach": 5,
           "hit": 4,
           "damage": [
@@ -29063,7 +29051,7 @@
         },
         {
           "name": "heavyCrossbow",
-          "attackType": "ranged",
+          "attackType": "rangedWeapon",
           "reach": 100,
           "hit": 2,
           "damage": [
@@ -32543,18 +32531,6 @@
             },
             {
               "roll": "1d6",
-              "damageType": "cold"
-            }
-          ]
-        },
-        {
-          "name": "chillingGaze",
-          "attackType": "magic",
-          "reach": 30,
-          "hit": 13,
-          "damage": [
-            {
-              "roll": "3d6",
               "damageType": "cold"
             }
           ]

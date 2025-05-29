@@ -72,7 +72,7 @@ mod tests {
 
         let result = roll_dice(Path("fake-expression".to_string()), State(state)).await;
 
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
     }
 
     #[tokio::test]
