@@ -9,7 +9,7 @@ pub trait Tokenize {
     fn tokenize(&self) -> HashSet<String>;
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Monster {
     pub name: String,
     pub ac: i32,
@@ -38,7 +38,7 @@ pub struct Monster {
     pub image_url: String,
 }
 
-#[derive(Serialize, Deserialize, Display, Clone)]
+#[derive(Serialize, Deserialize, Display, Clone, Debug)]
 pub enum Size {
     #[serde(rename = "gargantuan")]
     Gargantuan,
@@ -54,7 +54,7 @@ pub enum Size {
     Tiny,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Speed {
     pub walk: i32,
     pub fly: i32,
@@ -64,7 +64,7 @@ pub struct Speed {
     pub hover: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Stats {
     #[serde(rename = "str")]
     pub strength: i32,
@@ -80,7 +80,7 @@ pub struct Stats {
     pub charisma: i32,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Skills {
     pub acrobatics: i32,
     pub arcana: i32,
@@ -102,14 +102,14 @@ pub struct Skills {
     pub survival: i32,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Actions {
     pub list: Vec<String>,
     #[serde(rename = "attackRolls")]
     pub attack_rolls: Vec<AttackRoll>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AttackRoll {
     pub name: String,
     #[serde(rename = "attackType")]
@@ -119,14 +119,14 @@ pub struct AttackRoll {
     pub damage: Vec<DamageRoll>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DamageRoll {
     #[serde(rename = "damageType")]
     pub damage_type: DamageType,
     pub roll: String,
 }
 
-#[derive(Serialize, Deserialize, Display, Clone)]
+#[derive(Serialize, Deserialize, Display, Clone, Debug)]
 pub enum AttackType {
     #[serde(rename = "meleeWeapon")]
     MeleeWeapon,
@@ -138,7 +138,7 @@ pub enum AttackType {
     RangedSpell,
 }
 
-#[derive(Serialize, Deserialize, Display, Clone)]
+#[derive(Serialize, Deserialize, Display, Clone, Debug)]
 pub enum DamageType {
     #[serde(rename = "bludgeoning")]
     Bludgeoning,
@@ -162,7 +162,7 @@ pub enum DamageType {
     Necrotic,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Challenge {
     pub rating: String,
     pub xp: i32,

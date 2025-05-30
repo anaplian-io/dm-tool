@@ -6,8 +6,9 @@ mod utilities;
 use crate::dice::DiceRoller;
 use crate::dice::dice_roller::DiceRollerImpl;
 use crate::dice::die_roller::DieRollerImpl;
+use crate::handlers::get_monster::GetMonsterDependencies;
 use crate::handlers::list_monsters::ListMonstersDependencies;
-use crate::handlers::{list_dice, list_monsters};
+use crate::handlers::{get_monster, list_dice, list_monsters};
 use crate::monsters::Monster;
 use crate::monsters::search::MonsterSearch;
 use crate::utilities::MONSTERS_JSON_PATH;
@@ -19,6 +20,7 @@ use dice::DiceExpressionParser;
 use dice::dice_expression_parser::DiceExpressionParserImpl;
 use handlers::roll_dice;
 use handlers::roll_dice::RollDiceHandlerDependencies;
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 
@@ -40,6 +42,12 @@ async fn main() {
                 monsters: dependencies.monsters,
                 monster_search: dependencies.monster_search,
             }),
+        )
+        .route(
+            "/v1/monsters/{monster_name}",
+            get(get_monster::get_monster).with_state(GetMonsterDependencies {
+                monster_map: dependencies.monster_map,
+            }),
         );
     let listener = TcpListener::bind(("0.0.0.0", 8080)).await.unwrap();
     axum::serve(listener, app).await.unwrap();
@@ -50,6 +58,7 @@ struct Dependencies {
     dice_roller: Arc<dyn DiceRoller + Send + Sync>,
     monsters: Arc<Vec<Monster>>,
     monster_search: Arc<MonsterSearch>,
+    monster_map: Arc<HashMap<String, Monster>>,
 }
 
 fn build_dependencies() -> Dependencies {
@@ -57,14 +66,13 @@ fn build_dependencies() -> Dependencies {
     let die_roller = Arc::new(DieRollerImpl::default());
     let dice_roller = Arc::new(DiceRollerImpl::new(die_roller.clone()));
     let monsters = Arc::new(load_from_json::<Vec<Monster>>(MONSTERS_JSON_PATH));
-    let monster_search = Arc::new(MonsterSearch::from_map(Arc::new(vec_to_map(
-        &monsters,
-        |monster| monster.name.clone(),
-    ))));
+    let monster_map = Arc::new(vec_to_map(&monsters, |monster| monster.name.clone()));
+    let monster_search = Arc::new(MonsterSearch::from_map(monster_map.clone()));
     Dependencies {
         dice_expression_parser,
         dice_roller,
         monsters,
         monster_search,
+        monster_map,
     }
 }
