@@ -2,6 +2,7 @@ use crate::monsters::Monster;
 use crate::monsters::search::MonsterSearch;
 use axum::Json;
 use axum::extract::{Query, State};
+use serde::Deserialize;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -11,12 +12,18 @@ pub struct ListMonstersDependencies {
     pub(crate) monster_search: Arc<MonsterSearch>,
 }
 
+#[derive(Deserialize, Hash, Eq, PartialEq)]
+pub enum ListMonstersQueryKeys {
+    #[serde(rename = "query")]
+    Query,
+}
+
 pub async fn list_monsters(
-    Query(params): Query<HashMap<String, String>>,
+    Query(params): Query<HashMap<ListMonstersQueryKeys, String>>,
     State(dependencies): State<ListMonstersDependencies>,
 ) -> Json<Vec<Monster>> {
     params
-        .get("query")
+        .get(&ListMonstersQueryKeys::Query)
         .map(|query| query.split(' ').collect::<Vec<&str>>())
         .map(|search_terms| dependencies.monster_search.search(&search_terms))
         .map(Json)
@@ -54,7 +61,7 @@ mod tests {
         let state = get_dependencies();
         let result = list_monsters(
             Query(HashMap::from([(
-                "query".to_string(),
+                ListMonstersQueryKeys::Query,
                 "young evil dragon".to_string(),
             )])),
             State(state),

@@ -14,7 +14,7 @@ pub async fn get_monster(
     Path(monster_name): Path<String>,
     State(dependencies): State<GetMonsterDependencies>,
 ) -> Result<Json<Monster>, (StatusCode, String)> {
-    match dependencies.monster_map.get(&monster_name) {
+    match dependencies.monster_map.get(&monster_name.to_lowercase()) {
         None => Err((
             StatusCode::NOT_FOUND,
             format!("Monster `{}` not found", monster_name),

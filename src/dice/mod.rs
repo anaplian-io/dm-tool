@@ -13,7 +13,7 @@ pub trait DiceRoller {
     fn roll(&self, dice: &[(Die, i32)]) -> (Vec<Roll>, i32);
 }
 
-#[derive(Debug, Serialize, PartialEq)]
+#[derive(Debug, Serialize, PartialEq, Clone)]
 pub struct Roll {
     pub die: Die,
     pub value: i32,
