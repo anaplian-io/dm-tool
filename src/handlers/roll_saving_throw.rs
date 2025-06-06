@@ -1,18 +1,17 @@
-use crate::dice::{DiceRoller, Die, Roll};
-use crate::handlers::{AdvantageType, StatType};
+use crate::dice::Roll;
 use crate::monsters::Monster;
+use crate::stats::{AdvantageType, StatRoller, StatType};
 use axum::Json;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use serde::Serialize;
-use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct RollSavingThrowDependencies {
     pub(crate) monster_map: Arc<HashMap<String, Monster>>,
-    pub(crate) dice_roller: Arc<dyn DiceRoller + Sync + Send>,
+    pub(crate) stats_roller: Arc<dyn StatRoller + Sync + Send>,
 }
 
 #[derive(Serialize, Debug)]
@@ -22,7 +21,7 @@ pub struct RollSavingThrowResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "secondRoll")]
     second_roll: Option<Vec<Roll>>,
-    total: i32,
+    result: i32,
 }
 
 pub async fn roll_saving_throw(
@@ -47,27 +46,13 @@ pub async fn roll_saving_throw(
         StatType::Wisdom => saving_throws.wisdom,
         StatType::Charisma => saving_throws.charisma,
     };
-    let die_roll_expression = [(Die::D20, 1), (Die::Raw, modifier)];
-    let (first_roll, first_roll_total) = dependencies.dice_roller.roll(&die_roll_expression);
-    let (second_roll, total) = match advantage.keys().last() {
-        None => (None, first_roll_total),
-        Some(advantage_type) => {
-            let (second_roll, second_roll_total) =
-                dependencies.dice_roller.roll(&die_roll_expression);
-            match advantage_type {
-                AdvantageType::Advantage => {
-                    (Some(second_roll), max(first_roll_total, second_roll_total))
-                }
-                AdvantageType::Disadvantage => {
-                    (Some(second_roll), min(first_roll_total, second_roll_total))
-                }
-            }
-        }
-    };
+    let rolls = dependencies
+        .stats_roller
+        .roll_stat(modifier, &advantage.keys().last());
     Ok(Json(RollSavingThrowResponse {
-        first_roll,
-        second_roll,
-        total,
+        first_roll: rolls.first_roll,
+        second_roll: rolls.second_roll,
+        result: rolls.result,
     }))
 }
 
@@ -78,7 +63,9 @@ mod tests {
     use crate::dice::die_roller::DieRollerImpl;
     use crate::handlers::roll_saving_throw::{RollSavingThrowDependencies, roll_saving_throw};
     use crate::monsters::{Challenge, Size, Skills, Speed, Stats};
+    use crate::stats::stat_roller::StatRollerImpl;
     use axum::http::StatusCode;
+    use std::cmp::{max, min};
     use std::collections::HashMap;
     use std::sync::Arc;
 
@@ -90,7 +77,9 @@ mod tests {
 
         let dependencies = RollSavingThrowDependencies {
             monster_map: Arc::new(monster_map),
-            dice_roller: Arc::new(DiceRollerImpl::new(Arc::new(DieRollerImpl::default()))),
+            stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
+                Arc::new(DieRollerImpl::default()),
+            )))),
         };
 
         let result = roll_saving_throw(
@@ -109,7 +98,9 @@ mod tests {
     async fn test_roll_saving_throw_not_found() {
         let dependencies = RollSavingThrowDependencies {
             monster_map: Arc::new(HashMap::new()),
-            dice_roller: Arc::new(DiceRollerImpl::new(Arc::new(DieRollerImpl::default()))),
+            stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
+                Arc::new(DieRollerImpl::default()),
+            )))),
         };
 
         let result = roll_saving_throw(
@@ -131,7 +122,9 @@ mod tests {
 
         let dependencies = RollSavingThrowDependencies {
             monster_map: Arc::new(monster_map),
-            dice_roller: Arc::new(DiceRollerImpl::new(Arc::new(DieRollerImpl::default()))),
+            stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
+                Arc::new(DieRollerImpl::default()),
+            )))),
         };
 
         let result = roll_saving_throw(
@@ -149,7 +142,7 @@ mod tests {
         let unwrapped_result = result.unwrap().0;
         assert!(unwrapped_result.second_roll.is_some());
         assert_eq!(
-            unwrapped_result.total,
+            unwrapped_result.result,
             max(
                 total_roll(&unwrapped_result.first_roll),
                 total_roll(&unwrapped_result.second_roll.unwrap())
@@ -165,7 +158,9 @@ mod tests {
 
         let dependencies = RollSavingThrowDependencies {
             monster_map: Arc::new(monster_map),
-            dice_roller: Arc::new(DiceRollerImpl::new(Arc::new(DieRollerImpl::default()))),
+            stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
+                Arc::new(DieRollerImpl::default()),
+            )))),
         };
 
         let result = roll_saving_throw(
@@ -183,7 +178,7 @@ mod tests {
         let result = result.unwrap().0;
         assert!(result.second_roll.is_some());
         assert_eq!(
-            result.total,
+            result.result,
             min(
                 total_roll(&result.first_roll),
                 total_roll(&result.second_roll.unwrap())

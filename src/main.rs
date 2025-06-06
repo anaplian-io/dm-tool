@@ -1,6 +1,7 @@
 mod dice;
 mod handlers;
 mod monsters;
+mod stats;
 mod utilities;
 
 use crate::dice::DiceRoller;
@@ -12,6 +13,8 @@ use crate::handlers::roll_saving_throw::RollSavingThrowDependencies;
 use crate::handlers::{get_monster, list_dice, list_monsters, roll_saving_throw};
 use crate::monsters::Monster;
 use crate::monsters::search::MonsterSearch;
+use crate::stats::StatRoller;
+use crate::stats::stat_roller::StatRollerImpl;
 use crate::utilities::MONSTERS_JSON_PATH;
 use crate::utilities::index::vec_to_map;
 use crate::utilities::load_from_json::load_from_json;
@@ -54,7 +57,7 @@ async fn main() {
             "/v1/monsters/{monster_name}/roll/throw/{stat}",
             get(roll_saving_throw::roll_saving_throw).with_state(RollSavingThrowDependencies {
                 monster_map: dependencies.monster_map.clone(),
-                dice_roller: dependencies.dice_roller.clone(),
+                stats_roller: dependencies.stat_roller.clone(),
             }),
         );
     let listener = TcpListener::bind(("0.0.0.0", 8080)).await.unwrap();
@@ -64,6 +67,7 @@ async fn main() {
 struct Dependencies {
     dice_expression_parser: Arc<dyn DiceExpressionParser + Send + Sync>,
     dice_roller: Arc<dyn DiceRoller + Send + Sync>,
+    stat_roller: Arc<dyn StatRoller + Send + Sync>,
     monsters: Arc<Vec<Monster>>,
     monster_search: Arc<MonsterSearch>,
     monster_map: Arc<HashMap<String, Monster>>,
@@ -73,12 +77,14 @@ fn build_dependencies() -> Dependencies {
     let dice_expression_parser = Arc::new(DiceExpressionParserImpl::default());
     let die_roller = Arc::new(DieRollerImpl::default());
     let dice_roller = Arc::new(DiceRollerImpl::new(die_roller.clone()));
+    let stat_roller = Arc::new(StatRollerImpl::new(dice_roller.clone()));
     let monsters = Arc::new(load_from_json::<Vec<Monster>>(MONSTERS_JSON_PATH));
     let monster_map = Arc::new(vec_to_map(&monsters, |monster| monster.name.to_lowercase()));
     let monster_search = Arc::new(MonsterSearch::from_map(monster_map.clone()));
     Dependencies {
         dice_expression_parser,
         dice_roller,
+        stat_roller,
         monsters,
         monster_search,
         monster_map,
