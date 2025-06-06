@@ -9,8 +9,7 @@ use crate::dice::dice_roller::DiceRollerImpl;
 use crate::dice::die_roller::DieRollerImpl;
 use crate::handlers::get_monster::GetMonsterDependencies;
 use crate::handlers::list_monsters::ListMonstersDependencies;
-use crate::handlers::roll_saving_throw::RollSavingThrowDependencies;
-use crate::handlers::{get_monster, list_dice, list_monsters, roll_saving_throw};
+use crate::handlers::{get_monster, list_dice, list_monsters, roll_saving_throw, roll_skill};
 use crate::monsters::Monster;
 use crate::monsters::search::MonsterSearch;
 use crate::stats::StatRoller;
@@ -22,6 +21,7 @@ use axum::Router;
 use axum::routing::get;
 use dice::DiceExpressionParser;
 use dice::dice_expression_parser::DiceExpressionParserImpl;
+use handlers::MonsterRollerDependencies;
 use handlers::roll_dice;
 use handlers::roll_dice::RollDiceHandlerDependencies;
 use std::collections::HashMap;
@@ -55,7 +55,14 @@ async fn main() {
         )
         .route(
             "/v1/monsters/{monster_name}/roll/throw/{stat}",
-            get(roll_saving_throw::roll_saving_throw).with_state(RollSavingThrowDependencies {
+            get(roll_saving_throw::roll_saving_throw).with_state(MonsterRollerDependencies {
+                monster_map: dependencies.monster_map.clone(),
+                stats_roller: dependencies.stat_roller.clone(),
+            }),
+        )
+        .route(
+            "/v1/monsters/{monster_name}/roll/skill/{skill}",
+            get(roll_skill::roll_skill).with_state(MonsterRollerDependencies {
                 monster_map: dependencies.monster_map.clone(),
                 stats_roller: dependencies.stat_roller.clone(),
             }),

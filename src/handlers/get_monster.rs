@@ -76,6 +76,7 @@ mod tests {
             },
             skills: Skills {
                 acrobatics: 5,
+                animal_handling: 5,
                 arcana: 3,
                 athletics: 5,
                 deception: 3,

@@ -83,6 +83,8 @@ pub struct Stats {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Skills {
     pub acrobatics: i32,
+    #[serde(rename = "animalHandling")]
+    pub animal_handling: i32,
     pub arcana: i32,
     pub athletics: i32,
     pub deception: i32,

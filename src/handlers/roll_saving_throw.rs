@@ -1,34 +1,15 @@
-use crate::dice::Roll;
-use crate::monsters::Monster;
-use crate::stats::{AdvantageType, StatRoller, StatType};
+use crate::handlers::{MonsterRollerDependencies, StatRollResponse};
+use crate::stats::{AdvantageType, StatType};
 use axum::Json;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use serde::Serialize;
 use std::collections::HashMap;
-use std::sync::Arc;
-
-#[derive(Clone)]
-pub struct RollSavingThrowDependencies {
-    pub(crate) monster_map: Arc<HashMap<String, Monster>>,
-    pub(crate) stats_roller: Arc<dyn StatRoller + Sync + Send>,
-}
-
-#[derive(Serialize, Debug)]
-pub struct RollSavingThrowResponse {
-    #[serde(rename = "firstRoll")]
-    first_roll: Vec<Roll>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "secondRoll")]
-    second_roll: Option<Vec<Roll>>,
-    result: i32,
-}
 
 pub async fn roll_saving_throw(
     Path((monster_name, stat)): Path<(String, StatType)>,
     Query(advantage): Query<HashMap<AdvantageType, String>>,
-    State(dependencies): State<RollSavingThrowDependencies>,
-) -> Result<Json<RollSavingThrowResponse>, (StatusCode, String)> {
+    State(dependencies): State<MonsterRollerDependencies>,
+) -> Result<Json<StatRollResponse>, (StatusCode, String)> {
     let saving_throws = match dependencies.monster_map.get(&monster_name.to_lowercase()) {
         None => {
             return Err((
@@ -49,7 +30,7 @@ pub async fn roll_saving_throw(
     let rolls = dependencies
         .stats_roller
         .roll_stat(modifier, &advantage.keys().last());
-    Ok(Json(RollSavingThrowResponse {
+    Ok(Json(StatRollResponse {
         first_roll: rolls.first_roll,
         second_roll: rolls.second_roll,
         result: rolls.result,
@@ -59,10 +40,12 @@ pub async fn roll_saving_throw(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::dice::Roll;
     use crate::dice::dice_roller::DiceRollerImpl;
     use crate::dice::die_roller::DieRollerImpl;
-    use crate::handlers::roll_saving_throw::{RollSavingThrowDependencies, roll_saving_throw};
-    use crate::monsters::{Challenge, Size, Skills, Speed, Stats};
+    use crate::handlers::MonsterRollerDependencies;
+    use crate::handlers::roll_saving_throw::roll_saving_throw;
+    use crate::monsters::{Challenge, Monster, Size, Skills, Speed, Stats};
     use crate::stats::stat_roller::StatRollerImpl;
     use axum::http::StatusCode;
     use std::cmp::{max, min};
@@ -75,7 +58,7 @@ mod tests {
         let monster = get_test_monster();
         monster_map.insert("test_monster".to_string(), monster.clone());
 
-        let dependencies = RollSavingThrowDependencies {
+        let dependencies = MonsterRollerDependencies {
             monster_map: Arc::new(monster_map),
             stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
                 Arc::new(DieRollerImpl::default()),
@@ -96,7 +79,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_roll_saving_throw_not_found() {
-        let dependencies = RollSavingThrowDependencies {
+        let dependencies = MonsterRollerDependencies {
             monster_map: Arc::new(HashMap::new()),
             stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
                 Arc::new(DieRollerImpl::default()),
@@ -120,7 +103,7 @@ mod tests {
         let monster = get_test_monster();
         monster_map.insert("test_monster".to_string(), monster.clone());
 
-        let dependencies = RollSavingThrowDependencies {
+        let dependencies = MonsterRollerDependencies {
             monster_map: Arc::new(monster_map),
             stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
                 Arc::new(DieRollerImpl::default()),
@@ -156,7 +139,7 @@ mod tests {
         let monster = get_test_monster();
         monster_map.insert("test_monster".to_string(), monster.clone());
 
-        let dependencies = RollSavingThrowDependencies {
+        let dependencies = MonsterRollerDependencies {
             monster_map: Arc::new(monster_map),
             stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
                 Arc::new(DieRollerImpl::default()),
@@ -230,6 +213,7 @@ mod tests {
             },
             skills: Skills {
                 acrobatics: 5,
+                animal_handling: 5,
                 arcana: 3,
                 athletics: 5,
                 deception: 3,

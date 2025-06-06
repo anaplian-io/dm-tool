@@ -19,6 +19,44 @@ pub enum StatType {
     Charisma,
 }
 
+#[derive(Deserialize)]
+pub enum SkillType {
+    #[serde(rename = "acrobatics")]
+    Acrobatics,
+    #[serde(rename = "animal-handling")]
+    AnimalHandling,
+    #[serde(rename = "arcana")]
+    Arcana,
+    #[serde(rename = "athletics")]
+    Athletics,
+    #[serde(rename = "deception")]
+    Deception,
+    #[serde(rename = "history")]
+    History,
+    #[serde(rename = "insight")]
+    Insight,
+    #[serde(rename = "intimidation")]
+    Intimidation,
+    #[serde(rename = "medicine")]
+    Medicine,
+    #[serde(rename = "nature")]
+    Nature,
+    #[serde(rename = "perception")]
+    Perception,
+    #[serde(rename = "performance")]
+    Performance,
+    #[serde(rename = "persuasion")]
+    Persuasion,
+    #[serde(rename = "religion")]
+    Religion,
+    #[serde(rename = "sleight-of-hand")]
+    SleightOfHand,
+    #[serde(rename = "stealth")]
+    Stealth,
+    #[serde(rename = "survival")]
+    Survival,
+}
+
 #[derive(Deserialize, Hash, Eq, PartialEq)]
 pub enum AdvantageType {
     #[serde(rename = "advantage")]
