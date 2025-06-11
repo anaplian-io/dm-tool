@@ -1,9 +1,10 @@
+pub mod modifier_extractor;
 pub mod stat_roller;
 
 use crate::dice::Roll;
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub enum StatType {
     #[serde(rename = "str")]
     Strength,
@@ -19,7 +20,7 @@ pub enum StatType {
     Charisma,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub enum SkillType {
     #[serde(rename = "acrobatics")]
     Acrobatics,

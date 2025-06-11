@@ -1,31 +1,32 @@
 use crate::handlers::{MonsterRollerDependencies, StatRollResponse};
-use crate::stats::{AdvantageType, StatType};
+use crate::stats::AdvantageType;
 use axum::Json;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use std::collections::HashMap;
 
-pub async fn roll_saving_throw(
-    Path((monster_name, stat)): Path<(String, StatType)>,
+pub async fn roll_stat<T>(
+    Path((monster_name, stat)): Path<(String, T)>,
     Query(advantage): Query<HashMap<AdvantageType, String>>,
-    State(dependencies): State<MonsterRollerDependencies>,
+    State(dependencies): State<MonsterRollerDependencies<T>>,
 ) -> Result<Json<StatRollResponse>, (StatusCode, String)> {
-    let saving_throws = match dependencies.monster_map.get(&monster_name.to_lowercase()) {
+    let selected_monster = match dependencies.monster_map.get(&monster_name.to_lowercase()) {
         None => {
             return Err((
                 StatusCode::NOT_FOUND,
                 format!("Monster `{}` not found", monster_name),
             ));
         }
-        Some(monster) => &monster.saving_throws,
+        Some(monster) => monster,
     };
-    let modifier = match stat {
-        StatType::Strength => saving_throws.strength,
-        StatType::Dexterity => saving_throws.dexterity,
-        StatType::Constitution => saving_throws.constitution,
-        StatType::Intelligence => saving_throws.intelligence,
-        StatType::Wisdom => saving_throws.wisdom,
-        StatType::Charisma => saving_throws.charisma,
+    let modifier = match dependencies
+        .modifier_extractor
+        .extract(&stat, selected_monster)
+    {
+        None => {
+            return Err((StatusCode::NOT_FOUND, "No stat modifier found".to_string()));
+        }
+        Some(modifier) => modifier,
     };
     let rolls = dependencies
         .stats_roller
@@ -44,8 +45,12 @@ mod tests {
     use crate::dice::dice_roller::DiceRollerImpl;
     use crate::dice::die_roller::DieRollerImpl;
     use crate::handlers::MonsterRollerDependencies;
-    use crate::handlers::roll_saving_throw::roll_saving_throw;
+    use crate::handlers::roll_stat::roll_stat;
     use crate::monsters::{Challenge, Monster, Size, Skills, Speed, Stats};
+    use crate::stats::StatType;
+    use crate::stats::modifier_extractor::{
+        ModifierExtractor, build_saving_throw_modifier_extractor,
+    };
     use crate::stats::stat_roller::StatRollerImpl;
     use axum::http::StatusCode;
     use std::cmp::{max, min};
@@ -63,9 +68,10 @@ mod tests {
             stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
                 Arc::new(DieRollerImpl::default()),
             )))),
+            modifier_extractor: get_modifier_extractor(),
         };
 
-        let result = roll_saving_throw(
+        let result = roll_stat(
             Path(("test_monster".to_string(), StatType::Wisdom)),
             Query(HashMap::new()),
             State(dependencies.clone()),
@@ -78,15 +84,41 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_roll_saving_throw_not_found() {
+    async fn test_roll_saving_throw_monster_not_found() {
         let dependencies = MonsterRollerDependencies {
             monster_map: Arc::new(HashMap::new()),
             stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
                 Arc::new(DieRollerImpl::default()),
             )))),
+            modifier_extractor: get_modifier_extractor(),
         };
 
-        let result = roll_saving_throw(
+        let result = roll_stat(
+            Path(("test_monster".to_string(), StatType::Wisdom)),
+            Query(HashMap::new()),
+            State(dependencies.clone()),
+        )
+        .await;
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().0, StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn test_roll_saving_throw_modifier_not_found() {
+        let mut monster_map = HashMap::new();
+        let monster = get_test_monster();
+        monster_map.insert("test_monster".to_string(), monster.clone());
+
+        let dependencies = MonsterRollerDependencies {
+            monster_map: Arc::new(monster_map),
+            stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
+                Arc::new(DieRollerImpl::default()),
+            )))),
+            modifier_extractor: Arc::new(ModifierExtractor::new(|_, _| None)),
+        };
+
+        let result = roll_stat(
             Path(("test_monster".to_string(), StatType::Wisdom)),
             Query(HashMap::new()),
             State(dependencies.clone()),
@@ -108,9 +140,10 @@ mod tests {
             stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
                 Arc::new(DieRollerImpl::default()),
             )))),
+            modifier_extractor: get_modifier_extractor(),
         };
 
-        let result = roll_saving_throw(
+        let result = roll_stat(
             Path(("test_monster".to_string(), StatType::Wisdom)),
             Query(
                 [(AdvantageType::Advantage, "".to_string())]
@@ -144,9 +177,10 @@ mod tests {
             stats_roller: Arc::new(StatRollerImpl::new(Arc::new(DiceRollerImpl::new(
                 Arc::new(DieRollerImpl::default()),
             )))),
+            modifier_extractor: get_modifier_extractor(),
         };
 
-        let result = roll_saving_throw(
+        let result = roll_stat(
             Path(("test_monster".to_string(), StatType::Wisdom)),
             Query(
                 [(AdvantageType::Disadvantage, "".to_string())]
@@ -249,5 +283,9 @@ mod tests {
             .map(|roll| roll.value)
             .reduce(|a, b| a + b)
             .unwrap()
+    }
+
+    fn get_modifier_extractor() -> Arc<ModifierExtractor<StatType>> {
+        Arc::new(build_saving_throw_modifier_extractor())
     }
 }

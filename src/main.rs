@@ -9,11 +9,15 @@ use crate::dice::dice_roller::DiceRollerImpl;
 use crate::dice::die_roller::DieRollerImpl;
 use crate::handlers::get_monster::GetMonsterDependencies;
 use crate::handlers::list_monsters::ListMonstersDependencies;
-use crate::handlers::{get_monster, list_dice, list_monsters, roll_saving_throw, roll_skill};
+use crate::handlers::{get_monster, list_dice, list_monsters, roll_stat};
 use crate::monsters::Monster;
 use crate::monsters::search::MonsterSearch;
-use crate::stats::StatRoller;
+use crate::stats::modifier_extractor::{
+    ModifierExtractor, build_attack_modifier_extractor, build_saving_throw_modifier_extractor,
+    build_skill_modifier_extractor, build_stat_modifier_extractor,
+};
 use crate::stats::stat_roller::StatRollerImpl;
+use crate::stats::{SkillType, StatRoller, StatType};
 use crate::utilities::MONSTERS_JSON_PATH;
 use crate::utilities::index::vec_to_map;
 use crate::utilities::load_from_json::load_from_json;
@@ -55,16 +59,34 @@ async fn main() {
         )
         .route(
             "/v1/monsters/{monster_name}/roll/throw/{stat}",
-            get(roll_saving_throw::roll_saving_throw).with_state(MonsterRollerDependencies {
+            get(roll_stat::roll_stat).with_state(MonsterRollerDependencies {
                 monster_map: dependencies.monster_map.clone(),
                 stats_roller: dependencies.stat_roller.clone(),
+                modifier_extractor: dependencies.saving_throw_modifier_extractor.clone(),
             }),
         )
         .route(
             "/v1/monsters/{monster_name}/roll/skill/{skill}",
-            get(roll_skill::roll_skill).with_state(MonsterRollerDependencies {
+            get(roll_stat::roll_stat).with_state(MonsterRollerDependencies {
                 monster_map: dependencies.monster_map.clone(),
                 stats_roller: dependencies.stat_roller.clone(),
+                modifier_extractor: dependencies.skill_modifier_extractor.clone(),
+            }),
+        )
+        .route(
+            "/v1/monsters/{monster_name}/roll/stat/{stat}",
+            get(roll_stat::roll_stat).with_state(MonsterRollerDependencies {
+                monster_map: dependencies.monster_map.clone(),
+                stats_roller: dependencies.stat_roller.clone(),
+                modifier_extractor: dependencies.stat_modifier_extractor.clone(),
+            }),
+        )
+        .route(
+            "/v1/monsters/{monster_name}/roll/attack/{index}",
+            get(roll_stat::roll_stat).with_state(MonsterRollerDependencies {
+                monster_map: dependencies.monster_map.clone(),
+                stats_roller: dependencies.stat_roller.clone(),
+                modifier_extractor: dependencies.attack_modifier_extractor.clone(),
             }),
         );
     let listener = TcpListener::bind(("0.0.0.0", 8080)).await.unwrap();
@@ -78,6 +100,10 @@ struct Dependencies {
     monsters: Arc<Vec<Monster>>,
     monster_search: Arc<MonsterSearch>,
     monster_map: Arc<HashMap<String, Monster>>,
+    saving_throw_modifier_extractor: Arc<ModifierExtractor<StatType>>,
+    skill_modifier_extractor: Arc<ModifierExtractor<SkillType>>,
+    stat_modifier_extractor: Arc<ModifierExtractor<StatType>>,
+    attack_modifier_extractor: Arc<ModifierExtractor<usize>>,
 }
 
 fn build_dependencies() -> Dependencies {
@@ -88,6 +114,10 @@ fn build_dependencies() -> Dependencies {
     let monsters = Arc::new(load_from_json::<Vec<Monster>>(MONSTERS_JSON_PATH));
     let monster_map = Arc::new(vec_to_map(&monsters, |monster| monster.name.to_lowercase()));
     let monster_search = Arc::new(MonsterSearch::from_map(monster_map.clone()));
+    let saving_throw_modifier_extractor = Arc::new(build_saving_throw_modifier_extractor());
+    let skill_modifier_extractor = Arc::new(build_skill_modifier_extractor());
+    let stat_modifier_extractor = Arc::new(build_stat_modifier_extractor());
+    let attack_modifier_extractor = Arc::new(build_attack_modifier_extractor());
     Dependencies {
         dice_expression_parser,
         dice_roller,
@@ -95,5 +125,9 @@ fn build_dependencies() -> Dependencies {
         monsters,
         monster_search,
         monster_map,
+        saving_throw_modifier_extractor,
+        skill_modifier_extractor,
+        stat_modifier_extractor,
+        attack_modifier_extractor,
     }
 }
