@@ -9,7 +9,8 @@ use crate::dice::dice_roller::DiceRollerImpl;
 use crate::dice::die_roller::DieRollerImpl;
 use crate::handlers::get_monster::GetMonsterDependencies;
 use crate::handlers::list_monsters::ListMonstersDependencies;
-use crate::handlers::{get_monster, list_dice, list_monsters, roll_stat};
+use crate::handlers::roll_attack::RollAttackDependencies;
+use crate::handlers::{get_monster, list_dice, list_monsters, roll_attack, roll_stat};
 use crate::monsters::Monster;
 use crate::monsters::search::MonsterSearch;
 use crate::stats::modifier_extractor::{
@@ -87,6 +88,14 @@ async fn main() {
                 monster_map: dependencies.monster_map.clone(),
                 stats_roller: dependencies.stat_roller.clone(),
                 modifier_extractor: dependencies.attack_modifier_extractor.clone(),
+            }),
+        )
+        .route(
+            "/v1/monsters/{monster_name}/roll/damage/{index}",
+            get(roll_attack::roll_attack).with_state(RollAttackDependencies {
+                dice_expression_parser: dependencies.dice_expression_parser.clone(),
+                dice_roller: dependencies.dice_roller.clone(),
+                monster_map: dependencies.monster_map.clone(),
             }),
         );
     let listener = TcpListener::bind(("0.0.0.0", 8080)).await.unwrap();

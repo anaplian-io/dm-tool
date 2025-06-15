@@ -38,6 +38,8 @@ pub enum SkillType {
     Insight,
     #[serde(rename = "intimidation")]
     Intimidation,
+    #[serde(rename = "investigation")]
+    Investigation,
     #[serde(rename = "medicine")]
     Medicine,
     #[serde(rename = "nature")]
@@ -64,6 +66,12 @@ pub enum AdvantageType {
     Advantage,
     #[serde(rename = "disadvantage")]
     Disadvantage,
+}
+
+#[derive(Deserialize, Hash, Eq, PartialEq)]
+pub enum Critical {
+    #[serde(rename = "critical")]
+    Critical,
 }
 
 pub struct StatRoll {

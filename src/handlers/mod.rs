@@ -9,6 +9,7 @@ use std::sync::Arc;
 pub mod get_monster;
 pub mod list_dice;
 pub mod list_monsters;
+pub mod roll_attack;
 pub mod roll_dice;
 pub mod roll_stat;
 
