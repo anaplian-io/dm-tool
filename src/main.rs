@@ -32,71 +32,94 @@ use handlers::roll_dice::RollDiceHandlerDependencies;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::net::TcpListener;
+use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::TRACE)
+        .init();
     let dependencies = build_dependencies();
     let app = Router::new()
         .route(
             "/v1/dice/roll/{roll_expression}",
-            get(roll_dice::roll_dice).with_state(RollDiceHandlerDependencies {
-                dice_expression_parser: dependencies.dice_expression_parser.clone(),
-                dice_roller: dependencies.dice_roller.clone(),
-            }),
+            get(roll_dice::roll_dice)
+                .with_state(RollDiceHandlerDependencies {
+                    dice_expression_parser: dependencies.dice_expression_parser.clone(),
+                    dice_roller: dependencies.dice_roller.clone(),
+                })
+                .layer(TraceLayer::new_for_http()),
         )
-        .route("/v1/dice/list", get(list_dice::list_dice))
+        .route(
+            "/v1/dice/list",
+            get(list_dice::list_dice).layer(TraceLayer::new_for_http()),
+        )
         .route(
             "/v1/monsters",
-            get(list_monsters::list_monsters).with_state(ListMonstersDependencies {
-                monsters: dependencies.monsters.clone(),
-                monster_search: dependencies.monster_search.clone(),
-            }),
+            get(list_monsters::list_monsters)
+                .with_state(ListMonstersDependencies {
+                    monsters: dependencies.monsters.clone(),
+                    monster_search: dependencies.monster_search.clone(),
+                })
+                .layer(TraceLayer::new_for_http()),
         )
         .route(
             "/v1/monsters/{monster_name}",
-            get(get_monster::get_monster).with_state(GetMonsterDependencies {
-                monster_map: dependencies.monster_map.clone(),
-            }),
+            get(get_monster::get_monster)
+                .with_state(GetMonsterDependencies {
+                    monster_map: dependencies.monster_map.clone(),
+                })
+                .layer(TraceLayer::new_for_http()),
         )
         .route(
             "/v1/monsters/{monster_name}/roll/throw/{stat}",
-            get(roll_stat::roll_stat).with_state(MonsterRollerDependencies {
-                monster_map: dependencies.monster_map.clone(),
-                stats_roller: dependencies.stat_roller.clone(),
-                modifier_extractor: dependencies.saving_throw_modifier_extractor.clone(),
-            }),
+            get(roll_stat::roll_stat)
+                .with_state(MonsterRollerDependencies {
+                    monster_map: dependencies.monster_map.clone(),
+                    stats_roller: dependencies.stat_roller.clone(),
+                    modifier_extractor: dependencies.saving_throw_modifier_extractor.clone(),
+                })
+                .layer(TraceLayer::new_for_http()),
         )
         .route(
             "/v1/monsters/{monster_name}/roll/skill/{skill}",
-            get(roll_stat::roll_stat).with_state(MonsterRollerDependencies {
-                monster_map: dependencies.monster_map.clone(),
-                stats_roller: dependencies.stat_roller.clone(),
-                modifier_extractor: dependencies.skill_modifier_extractor.clone(),
-            }),
+            get(roll_stat::roll_stat)
+                .with_state(MonsterRollerDependencies {
+                    monster_map: dependencies.monster_map.clone(),
+                    stats_roller: dependencies.stat_roller.clone(),
+                    modifier_extractor: dependencies.skill_modifier_extractor.clone(),
+                })
+                .layer(TraceLayer::new_for_http()),
         )
         .route(
             "/v1/monsters/{monster_name}/roll/stat/{stat}",
-            get(roll_stat::roll_stat).with_state(MonsterRollerDependencies {
-                monster_map: dependencies.monster_map.clone(),
-                stats_roller: dependencies.stat_roller.clone(),
-                modifier_extractor: dependencies.stat_modifier_extractor.clone(),
-            }),
+            get(roll_stat::roll_stat)
+                .with_state(MonsterRollerDependencies {
+                    monster_map: dependencies.monster_map.clone(),
+                    stats_roller: dependencies.stat_roller.clone(),
+                    modifier_extractor: dependencies.stat_modifier_extractor.clone(),
+                })
+                .layer(TraceLayer::new_for_http()),
         )
         .route(
             "/v1/monsters/{monster_name}/roll/attack/{index}",
-            get(roll_stat::roll_stat).with_state(MonsterRollerDependencies {
-                monster_map: dependencies.monster_map.clone(),
-                stats_roller: dependencies.stat_roller.clone(),
-                modifier_extractor: dependencies.attack_modifier_extractor.clone(),
-            }),
+            get(roll_stat::roll_stat)
+                .with_state(MonsterRollerDependencies {
+                    monster_map: dependencies.monster_map.clone(),
+                    stats_roller: dependencies.stat_roller.clone(),
+                    modifier_extractor: dependencies.attack_modifier_extractor.clone(),
+                })
+                .layer(TraceLayer::new_for_http()),
         )
         .route(
             "/v1/monsters/{monster_name}/roll/damage/{index}",
-            get(roll_attack::roll_attack).with_state(RollAttackDependencies {
-                dice_expression_parser: dependencies.dice_expression_parser.clone(),
-                dice_roller: dependencies.dice_roller.clone(),
-                monster_map: dependencies.monster_map.clone(),
-            }),
+            get(roll_attack::roll_attack)
+                .with_state(RollAttackDependencies {
+                    dice_expression_parser: dependencies.dice_expression_parser.clone(),
+                    dice_roller: dependencies.dice_roller.clone(),
+                    monster_map: dependencies.monster_map.clone(),
+                })
+                .layer(TraceLayer::new_for_http()),
         );
     let listener = TcpListener::bind(("0.0.0.0", 8080)).await.unwrap();
     axum::serve(listener, app).await.unwrap();

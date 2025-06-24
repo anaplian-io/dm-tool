@@ -4,6 +4,7 @@ pub mod die_roller;
 
 use enum_iterator::Sequence;
 use serde::Serialize;
+use strum_macros::Display;
 
 pub trait DieRoller {
     fn roll(&self, die: &Die) -> i32;
@@ -19,7 +20,7 @@ pub struct Roll {
     pub value: i32,
 }
 
-#[derive(Debug, Serialize, PartialEq, Clone, Sequence)]
+#[derive(Debug, Serialize, PartialEq, Clone, Sequence, Display)]
 pub enum Die {
     D4,
     D6,
