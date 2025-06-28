@@ -17,7 +17,7 @@ pub async fn get_monster(
     match dependencies.monster_map.get(&monster_name.to_lowercase()) {
         None => Err((
             StatusCode::NOT_FOUND,
-            format!("Monster `{}` not found", monster_name),
+            format!("Monster `{monster_name}` not found"),
         )),
         Some(monster) => Ok(Json(monster.clone())),
     }

@@ -14,7 +14,7 @@ pub async fn roll_stat<T>(
         None => {
             return Err((
                 StatusCode::NOT_FOUND,
-                format!("Monster `{}` not found", monster_name),
+                format!("Monster `{monster_name}` not found"),
             ));
         }
         Some(monster) => monster,
