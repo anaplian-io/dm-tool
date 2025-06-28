@@ -42,7 +42,7 @@ impl DiceExpressionParser for DiceExpressionParserImpl {
             })
             .collect();
         if parsed_die_expression.is_empty() {
-            return Err(format!("\"{}\" is not a valid dice expression", expression));
+            return Err(format!("\"{expression}\" is not a valid dice expression"));
         }
         Ok(parsed_die_expression)
     }
