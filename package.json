@@ -17,6 +17,7 @@
     "clean": "npm run clean:rs && npm run clean:ts",
     "build": "npm run build:rs && npm run build:ts",
     "test": "npm run test:rs && npm run test:ts",
+    "release": "npm run build && npm run test",
     "lint": "npm run lint:rs && npm run lint:ts",
     "format": "npm run format:rs && npm run format:ts",
     "start": "cargo run",

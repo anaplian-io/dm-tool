@@ -4,3 +4,4 @@
 dist/
 *.guard.ts
 /user_data
+.aider*
