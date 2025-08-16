@@ -1,7 +1,8 @@
 /target
 /.idea
-/node_modules
+node_modules/
 dist/
 *.guard.ts
 /user_data
 .aider*
+mcp.json
