@@ -16,9 +16,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo",
-    "bundle": "tsc --noEmit && esbuild src/index.ts --outfile=dist/index.js --platform=node --bundle --target=node22 --format=esm --minify",
+    "bundle:server": "tsc --noEmit && esbuild src/index.ts --outfile=dist/index.js --platform=node --bundle --target=node22 --format=esm --minify",
+    "build:install": "node bin/install-mcp.js",
     "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
-    "build": "npm run bundle"
+    "clean": "rm -rf dist",
+    "build": "npm run bundle:server && npm run build:install"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.13.0",
